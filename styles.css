@@ -61,6 +61,10 @@ body {
   cursor: pointer;
 }
 
+.bottom-nav {
+  display: none;
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -975,6 +979,36 @@ textarea {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .bottom-nav {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #fff;
+    border-top: 1px solid var(--line);
+    padding: 8px 6px env(safe-area-inset-bottom);
+    z-index: 18;
+  }
+
+  .bottom-nav a {
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 11px;
+    text-align: center;
+    padding: 6px 4px;
+  }
+
+  .bottom-nav a.active {
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  .content {
+    padding-bottom: 70px;
   }
 }
 

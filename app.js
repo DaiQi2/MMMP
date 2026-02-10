@@ -435,6 +435,16 @@ function updateRoleView() {
     link.classList.toggle("active", link.getAttribute("href") === currentPage);
   });
 
+  const bottomNav = document.getElementById("bottomNav");
+  if (bottomNav) {
+    bottomNav.querySelectorAll("a").forEach((link) => {
+      link.classList.toggle("active", link.getAttribute("href") === currentPage);
+      const route = link.dataset.route;
+      const isAllowed = navMap[role].includes(route);
+      link.style.display = isAllowed ? "block" : "none";
+    });
+  }
+
   if (sidebar && sidebarOverlay) {
     sidebar.classList.remove("active");
     sidebarOverlay.classList.remove("active");
