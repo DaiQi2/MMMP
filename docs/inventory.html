@@ -9,6 +9,7 @@
   <body>
     <div class="app">
       <header class="topbar">
+        <button class="menu-toggle" data-toggle-sidebar aria-label="打开菜单">☰</button>
         <div class="brand">
           <div class="brand-mark">MKT</div>
           <div class="brand-text">
@@ -240,5 +241,14 @@
     </div>
 
     <script src="app.js"></script>
-  </body>
+  
+    <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+    <nav class="bottom-nav" id="bottomNav">
+      <a href="index.html" data-route="dashboard">仪表盘</a>
+      <a href="materials.html" data-route="materials">物料中心</a>
+      <a href="orders.html" data-route="orders">领用订单</a>
+      <a href="approvals.html" data-route="approvals">审批中心</a>
+      <a href="inventory.html" data-route="inventory">库存</a>
+    </nav>
+</body>
 </html>

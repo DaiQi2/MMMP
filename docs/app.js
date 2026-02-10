@@ -97,6 +97,8 @@ const splitList = document.getElementById("splitList");
 const itemList = document.getElementById("itemList");
 const addressList = document.getElementById("addressList");
 const multiAddressToggle = document.getElementById("multiAddressToggle");
+const sidebar = document.querySelector(".sidebar");
+const sidebarOverlay = document.getElementById("sidebarOverlay");
 let modalTarget = null;
 
 function renderMaterials(filter = "all") {
@@ -234,6 +236,19 @@ function renderRoles() {
 }
 
 function bindEvents() {
+  const menuToggle = document.querySelector("[data-toggle-sidebar]");
+  if (menuToggle && sidebar && sidebarOverlay) {
+    menuToggle.addEventListener("click", () => {
+      sidebar.classList.add("active");
+      sidebarOverlay.classList.add("active");
+      sidebarOverlay.setAttribute("aria-hidden", "false");
+    });
+    sidebarOverlay.addEventListener("click", () => {
+      sidebar.classList.remove("active");
+      sidebarOverlay.classList.remove("active");
+      sidebarOverlay.setAttribute("aria-hidden", "true");
+    });
+  }
   document.querySelectorAll("[data-open-order]").forEach((btn) => {
     btn.addEventListener("click", () => openOrderDrawer());
   });
@@ -419,6 +434,22 @@ function updateRoleView() {
   document.querySelectorAll(".nav-link").forEach((link) => {
     link.classList.toggle("active", link.getAttribute("href") === currentPage);
   });
+
+  const bottomNav = document.getElementById("bottomNav");
+  if (bottomNav) {
+    bottomNav.querySelectorAll("a").forEach((link) => {
+      link.classList.toggle("active", link.getAttribute("href") === currentPage);
+      const route = link.dataset.route;
+      const isAllowed = navMap[role].includes(route);
+      link.style.display = isAllowed ? "block" : "none";
+    });
+  }
+
+  if (sidebar && sidebarOverlay) {
+    sidebar.classList.remove("active");
+    sidebarOverlay.classList.remove("active");
+    sidebarOverlay.setAttribute("aria-hidden", "true");
+  }
 }
 
 function init() {
