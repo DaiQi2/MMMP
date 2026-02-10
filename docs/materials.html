@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MKT 物料管理平台 - 物料中心</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">MKT</div>
+          <div class="brand-text">
+            <div class="brand-title">物料管理平台</div>
+            <div class="brand-sub">Marketing Material Management</div>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <div class="search">
+            <input id="globalSearch" type="search" placeholder="搜索物料 / 订单 / SKU" />
+          </div>
+          <div class="role-switch">
+            <label for="roleSelect">当前角色</label>
+            <select id="roleSelect">
+              <option value="requester">领用人员</option>
+              <option value="approver">审批人员</option>
+              <option value="operator" selected>运营人员</option>
+              <option value="supplier">供应商</option>
+              <option value="agent">代理人员</option>
+            </select>
+          </div>
+          <button class="btn ghost">消息</button>
+                  </div>
+      </header>
+
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <div class="section-title">导航</div>
+          <nav class="nav">
+            <a href="index.html" class="nav-link" data-route="dashboard">仪表盘</a>
+            <a href="materials.html" class="nav-link" data-route="materials">物料中心</a>
+            <a href="orders.html" class="nav-link" data-route="orders">领用订单</a>
+            <a href="approvals.html" class="nav-link" data-route="approvals">审批中心</a>
+            <a href="procurements.html" class="nav-link" data-route="procurements">采购订单</a>
+            <a href="inventory.html" class="nav-link" data-route="inventory">库存管理</a>
+            <a href="returns.html" class="nav-link" data-route="returns">退回管理</a>
+            <a href="suppliers.html" class="nav-link" data-route="suppliers">供应商协同</a>
+            <a href="settings.html" class="nav-link" data-route="settings">权限配置</a>
+          </nav>
+        </div>
+        <div class="sidebar-section">
+          <div class="section-title">流程提醒</div>
+          <div class="note">
+            领用订单超过 1 天未审批将自动取消并释放库存。
+          </div>
+          <div class="note">
+            多地址发货请使用批量地址模板上传并按成本中心分摊。
+          </div>
+          <div class="note">
+            退回第三方物品需生成 TFS-TP-XXXXXX SKU。
+          </div>
+        </div>
+      </aside>
+
+      <main class="content">
+
+        <section class="page active">
+          <div class="page-header">
+            <div>
+              <h2>全部品类</h2>
+              <p>支持标品、定制/印刷、展会用品统一管理，可批量导入与下架。</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn ghost">批量导入</button>
+              <button class="btn primary">新增物料</button>
+            </div>
+          </div>
+          <div class="filters">
+            <button class="chip active" data-filter="all">全部</button>
+            <button class="chip" data-filter="standard">标准礼品</button>
+            <button class="chip" data-filter="custom">定制/印刷</button>
+            <button class="chip" data-filter="expo">展会用品</button>
+            <button class="chip" data-filter="low">低库存</button>
+          </div>
+          <div class="materials-grid" id="materialsGrid"></div>
+        </section>
+        
+      </main>
+    </div>
+
+
+
+    <div class="drawer" id="orderDrawer" aria-hidden="true">
+      <div class="drawer-content">
+        <div class="drawer-header">
+          <div>
+            <div class="drawer-title">创建领用订单</div>
+            <div class="drawer-sub">支持多地址拆分、成本中心分摊、代理人与最终使用者填写。</div>
+          </div>
+          <button class="btn ghost" data-close-order>关闭</button>
+        </div>
+
+        <form class="order-form" id="orderForm">
+          <div class="form-section">
+            <div class="section-heading">申请信息</div>
+            <div class="form-grid three">
+              <label>申请人
+                <input type="text" name="applicant" placeholder="默认当前领用人" />
+              </label>
+              <label>最终使用者
+                <input type="text" name="finalUser" placeholder="可与申请人不同" />
+              </label>
+              <label>代理人
+                <input type="text" name="agent" placeholder="如无可留空" />
+              </label>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-heading">成本中心分摊</div>
+            <div class="split-list" id="splitList">
+              <div class="split-row header">
+                <span>成本中心</span>
+                <span>分摊比例</span>
+                <span>备注</span>
+              </div>
+              <div class="split-row">
+                <input type="text" placeholder="市场中心" />
+                <input type="text" placeholder="70%" />
+                <input type="text" placeholder="品牌活动" />
+              </div>
+            </div>
+            <button class="btn ghost" type="button" data-add-split>新增分摊</button>
+          </div>
+
+          <div class="form-section">
+            <div class="section-heading">物料清单</div>
+            <div class="item-list" id="itemList">
+              <div class="item-row header">
+                <span>物料名称 / SKU</span>
+                <span>类型</span>
+                <span>数量</span>
+                <span>操作</span>
+              </div>
+              <div class="item-row">
+                <input type="text" placeholder="输入物料名称或 SKU" />
+                <select>
+                  <option>标准礼品</option>
+                  <option>定制/印刷</option>
+                  <option>展会用品</option>
+                </select>
+                <input type="number" min="1" value="1" />
+                <button class="btn ghost" type="button" data-remove-row>移除</button>
+              </div>
+            </div>
+            <div class="inline-actions">
+              <button class="btn ghost" type="button" data-add-item>新增物料</button>
+              <button class="btn ghost" type="button">加入购物车</button>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-heading">多地址发货</div>
+            <div class="toggle-row">
+              <label class="switch">
+                <input type="checkbox" id="multiAddressToggle" />
+                <span class="slider"></span>
+              </label>
+              <span>启用多地址拆分</span>
+            </div>
+            <div class="address-list" id="addressList">
+              <div class="address-row header">
+                <span>收货人</span>
+                <span>电话</span>
+                <span>地址</span>
+                <span>物料分配</span>
+              </div>
+              <div class="address-row">
+                <input type="text" placeholder="张敏" />
+                <input type="text" placeholder="13800000000" />
+                <input type="text" placeholder="上海市浦东新区..." />
+                <input type="text" placeholder="SKU-1001 x 20" />
+              </div>
+            </div>
+            <div class="inline-actions">
+              <button class="btn ghost" type="button" data-add-address>新增地址</button>
+              <button class="btn ghost" type="button">批量上传地址</button>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-heading">发货方式</div>
+            <div class="form-grid two">
+              <label>发货方式
+                <select>
+                  <option>发仓库（默认）</option>
+                  <option>供应商直发</option>
+                </select>
+              </label>
+              <label>期望到货时间
+                <input type="date" />
+              </label>
+            </div>
+            <label>备注
+              <textarea rows="3" placeholder="补充说明、特殊要求等"></textarea>
+            </label>
+          </div>
+
+          <div class="form-footer">
+            <button class="btn ghost" type="button">保存草稿</button>
+            <button class="btn primary" type="submit">提交领用订单</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
