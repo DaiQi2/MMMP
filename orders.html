@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>MKT 物料管理平台 - 领用订单</title>
-    <link rel="stylesheet" href="styles.css?v=2026-02-12-1" />
+    <link rel="stylesheet" href="styles.css?v=2026-02-12-2" />
   </head>
   <body>
     <div class="app">
@@ -78,7 +78,42 @@
               <button class="btn primary">创建领用</button>
             </div>
           </div>
+          <div class="orders-toolbar">
+            <label for="orderStatusFilter">审批状态筛选</label>
+            <select id="orderStatusFilter">
+              <option value="all">全部</option>
+              <option value="待审批">待审批</option>
+              <option value="已审批">已审批</option>
+              <option value="已拒绝">已拒绝</option>
+              <option value="退回">退回</option>
+              <option value="待发货">待发货</option>
+            </select>
+          </div>
           <div class="table" id="ordersTable"></div>
+          <div class="grid two order-checkout-row">
+            <div class="card">
+              <div class="card-title">领用清单</div>
+              <div class="table" id="orderCartTable"></div>
+              <div class="form-footer">
+                <button class="btn ghost" id="clearOrderCart">清空清单</button>
+                <button class="btn primary" id="submitOrderCart">提交领用单</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">主成本中心</div>
+              <label class="order-select">
+                <select id="cartCostCenter">
+                  <option value="">请选择</option>
+                  <option value="CNT92059">CNT92059</option>
+                  <option value="市场中心">市场中心</option>
+                  <option value="品牌部">品牌部</option>
+                  <option value="华东销售">华东销售</option>
+                  <option value="展会组">展会组</option>
+                </select>
+              </label>
+              <div class="form-hint">审批人将按主成本中心映射自动匹配</div>
+            </div>
+          </div>
         </section>
         
       </main>
@@ -202,7 +237,12 @@
             </label>
           </div>
 
-          <div class="form-footer">
+                      <div class="form">
+              <label>审批人邮箱
+                <input type="email" id="approverEmail" placeholder="输入审批人邮箱" />
+              </label>
+            </div>
+<div class="form-footer">
             <button class="btn ghost" type="button">保存草稿</button>
             <button class="btn primary" type="submit">提交领用订单</button>
           </div>
@@ -210,7 +250,7 @@
       </div>
     </div>
 
-    <script src="app.js?v=2026-02-12-1"></script>
+    <script src="app.js?v=2026-02-12-2"></script>
   
     <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
         <nav class="bottom-nav" id="bottomNav">

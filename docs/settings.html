@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>MKT 物料管理平台 - 权限配置</title>
-    <link rel="stylesheet" href="styles.css?v=2026-02-12-1" />
+    <link rel="stylesheet" href="styles.css?v=2026-02-12-2" />
   </head>
   <body>
     <div class="app">
@@ -79,6 +79,20 @@
             </div>
           </div>
           <div class="grid two">
+          <div class="card">
+            <div class="card-title">成本中心 → 财务BP映射</div>
+          <div class="form-hint">保存路径：<span id="bpMappingPath">/Users/qi.dai/MMMP/server/bp-mapping.json</span></div>
+            <div class="table" id="bpMapTable"></div>
+            <div class="inline-actions">
+              <button class="btn ghost" id="addBpRow">新增映射</button>
+              <button class="btn ghost" id="exportBpMap">导出映射</button>
+              <label class="btn ghost" for="importBpMap">导入映射</label>
+              <input type="file" id="importBpMap" accept="application/json" hidden />
+              <button class="btn primary" id="saveBpMap">保存映射</button>
+            </div>
+            <div class="form-hint">仅本地 Node 服务可保存；GitHub Pages 上为只读。</div>
+          </div>
+
             <div class="card">
               <div class="card-title">角色列表</div>
               <ul class="list" id="roleList"></ul>
@@ -219,7 +233,7 @@
       </div>
     </div>
 
-    <script src="app.js?v=2026-02-12-1"></script>
+    <script src="app.js?v=2026-02-12-2"></script>
   
     <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
         <nav class="bottom-nav" id="bottomNav">

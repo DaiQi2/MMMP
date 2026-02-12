@@ -508,6 +508,26 @@ body {
   gap: 12px;
 }
 
+.orders-toolbar {
+  margin: 12px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.orders-toolbar label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.orders-toolbar select {
+  min-width: 170px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
 .filters {
   margin: 12px 0;
   display: flex;
@@ -689,6 +709,33 @@ body {
   font-size: 12px;
   color: var(--muted);
   margin-bottom: 8px;
+}
+
+.order-cart-grid {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.order-cart-right {
+  align-self: stretch;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.order-cart-right .card-title {
+  margin-bottom: 10px;
+}
+
+.order-select select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #fff;
 }
 
 .table {
@@ -1215,6 +1262,10 @@ textarea {
   }
 
   .redeem-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .order-cart-grid {
     grid-template-columns: 1fr;
   }
 }

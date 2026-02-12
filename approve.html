@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>审批处理</title>
+    <style>
+      body{font-family:Arial,Helvetica,sans-serif;background:#f7f4f1;margin:0;padding:24px;color:#2a1d16}
+      .card{max-width:560px;margin:0 auto;background:#fff;border:1px solid #e6dfda;border-radius:12px;padding:20px}
+      h2{margin:0 0 8px}
+      .hint{color:#6f6862;font-size:12px;margin-bottom:12px}
+      textarea{width:100%;min-height:100px;border:1px solid #e6dfda;border-radius:8px;padding:10px}
+      .actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+      button{border:none;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:600}
+      .ok{background:#1f7a4a;color:#fff}
+      .reject{background:#c21835;color:#fff}
+      .return{background:#6f6862;color:#fff}
+      .selected{outline:2px solid #111;outline-offset:2px}
+      .result{margin-top:12px;font-size:13px}
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h2>领用审批</h2>
+      <div class="hint">请填写审批意见（可选），然后选择操作。</div>
+      <textarea id="comment" placeholder="填写审批意见..."></textarea>
+      <div class="actions">
+        <button class="ok" data-action="approved">同意</button>
+        <button class="reject" data-action="rejected">拒绝</button>
+        <button class="return" data-action="return">退回</button>
+      </div>
+      <div class="result" id="result"></div>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(location.search);
+      const orderId = params.get("orderId");
+      const preset = params.get("action");
+      const result = document.getElementById("result");
+      const buttons = Array.from(document.querySelectorAll("button[data-action]"));
+
+      function setButtonsDisabled(disabled) {
+        buttons.forEach((b) => {
+          b.disabled = disabled;
+          b.style.opacity = disabled ? "0.65" : "1";
+          b.style.cursor = disabled ? "not-allowed" : "pointer";
+        });
+      }
+
+      function closePage() {
+        setTimeout(() => {
+          window.close();
+          setTimeout(() => {
+            if (!document.hidden) {
+              location.replace("about:blank");
+            }
+          }, 200);
+        }, 700);
+      }
+
+      buttons.forEach(btn => {
+        if (preset && btn.dataset.action === preset) {
+          btn.classList.add("selected");
+        }
+        btn.addEventListener("click", async () => {
+          if (!orderId) {
+            result.textContent = "缺少订单号";
+            return;
+          }
+          setButtonsDisabled(true);
+          const comment = document.getElementById("comment").value.trim();
+          const action = btn.dataset.action;
+          try {
+            const res = await fetch("/api/approval", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ orderId, action, comment })
+            });
+            if (!res.ok) throw new Error("审批提交失败");
+            result.textContent = "审批已提交：" + (action === "approved" ? "同意" : action === "rejected" ? "拒绝" : "退回") + "，正在关闭页面…";
+            closePage();
+          } catch (e) {
+            result.textContent = e.message;
+            setButtonsDisabled(false);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

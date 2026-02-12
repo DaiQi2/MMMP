@@ -17,6 +17,63 @@ const makeSvg = (label, color) => {
   return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
 };
 
+const STORAGE_KEYS = {
+  materials: "mkt_materials",
+  points: "mkt_pointsBalance",
+  orderCart: "mkt_orderCart",
+  orders: "mkt_orders",
+};
+
+function loadStoredMaterials() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.materials);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveStoredMaterials(materials) {
+  localStorage.setItem(STORAGE_KEYS.materials, JSON.stringify(materials));
+}
+
+function loadStoredPoints() {
+  const raw = localStorage.getItem(STORAGE_KEYS.points);
+  return raw ? Number(raw) : null;
+}
+
+function saveStoredPoints(points) {
+  localStorage.setItem(STORAGE_KEYS.points, String(points));
+}
+
+function loadOrderCart() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.orderCart);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveOrderCart(cart) {
+  localStorage.setItem(STORAGE_KEYS.orderCart, JSON.stringify(cart));
+}
+
+function loadStoredOrders() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.orders);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveStoredOrders(orders) {
+  localStorage.setItem(STORAGE_KEYS.orders, JSON.stringify(orders));
+}
+
 const state = {
   role: "operator",
   pointsBalance: 3200,
@@ -66,6 +123,19 @@ const state = {
   ],
 };
 
+const storedMaterials = loadStoredMaterials();
+if (storedMaterials && Array.isArray(storedMaterials) && storedMaterials.length) {
+  state.materials = storedMaterials;
+}
+const storedPoints = loadStoredPoints();
+if (typeof storedPoints === "number" && !Number.isNaN(storedPoints)) {
+  state.pointsBalance = storedPoints;
+}
+const storedOrders = loadStoredOrders();
+if (storedOrders && storedOrders.length) {
+  state.orders = storedOrders;
+}
+
 const routes = ["dashboard", "materials", "points", "orders", "approvals", "procurements", "inventory", "returns", "suppliers", "settings"];
 const routeToPage = {
   dashboard: "index.html",
@@ -98,6 +168,17 @@ const pointsBalance = document.getElementById("pointsBalance");
 const redeemableCount = document.getElementById("redeemableCount");
 const redeemOnlyToggle = document.getElementById("redeemOnlyToggle");
 const redeemSubmit = document.getElementById("redeemSubmit");
+const bpMapTable = document.getElementById("bpMapTable");
+const addBpRow = document.getElementById("addBpRow");
+const saveBpMap = document.getElementById("saveBpMap");
+const exportBpMap = document.getElementById("exportBpMap");
+const importBpMap = document.getElementById("importBpMap");
+const orderCartTable = document.getElementById("orderCartTable");
+const clearOrderCart = document.getElementById("clearOrderCart");
+const submitOrderCart = document.getElementById("submitOrderCart");
+const cartCostCenter = document.getElementById("cartCostCenter");
+const approverEmail = document.getElementById("approverEmail");
+const orderStatusFilter = document.getElementById("orderStatusFilter");
 
 const modal = document.getElementById("decisionModal");
 const modalOrder = document.getElementById("modalOrder");
@@ -115,8 +196,22 @@ const splitHint = document.getElementById("splitHint");
 const sidebar = document.querySelector(".sidebar");
 const sidebarOverlay = document.getElementById("sidebarOverlay");
 let modalTarget = null;
+let approvalPollTimer = null;
 
 const redeemCart = new Map();
+
+const addMaterialModal = document.getElementById("addMaterialModal");
+const newMatName = document.getElementById("newMatName");
+const newMatSku = document.getElementById("newMatSku");
+const newMatType = document.getElementById("newMatType");
+const newMatCategory = document.getElementById("newMatCategory");
+const newMatStock = document.getElementById("newMatStock");
+const newMatAvailable = document.getElementById("newMatAvailable");
+const newMatPrice = document.getElementById("newMatPrice");
+const newMatRedeemable = document.getElementById("newMatRedeemable");
+const newMatPoints = document.getElementById("newMatPoints");
+const newMatImage = document.getElementById("newMatImage");
+const editMatId = document.getElementById("editMatId");
 
 const bpMapping = {
   "市场中心": "BP-张珊",
@@ -178,6 +273,10 @@ function validateSplitAndBp() {
   return true;
 }
 
+function canEditMaterials() {
+  return state.role === "operator";
+}
+
 function renderMaterials(filter = "all") {
   if (!materialsGrid) return;
   materialsGrid.innerHTML = "";
@@ -190,6 +289,7 @@ function renderMaterials(filter = "all") {
   list.forEach((item) => {
     const card = document.createElement("div");
     card.className = "material-card";
+    const editBtn = canEditMaterials() ? `<button class="btn ghost small" data-edit-material="${item.id}">编辑</button>` : "";
     card.innerHTML = `
       <div class="material-image">
         <img src="${item.image}" alt="${item.name}" loading="lazy"/>
@@ -199,7 +299,8 @@ function renderMaterials(filter = "all") {
       <div class="material-footer">
         <div class="material-price">¥${item.price}</div>
         <button class="btn ghost icon">🛒</button>
-        <button class="btn primary small">立即领用</button>
+        <button class="btn primary small" data-order-now="${item.id}">立即领用</button>
+        ${editBtn}
       </div>
     `;
     materialsGrid.appendChild(card);
@@ -283,7 +384,13 @@ function renderTable(el, headers, rows, statusIndex) {
       const cellEl = document.createElement("div");
       if (i === statusIndex) {
         const status = document.createElement("div");
-        const statusKey = cell.includes("待") ? "pending" : cell.includes("拒") ? "rejected" : cell.includes("发货") ? "shipping" : "approved";
+        const statusKey = cell.includes("待")
+          ? "pending"
+          : cell.includes("拒") || cell.includes("退回")
+            ? "rejected"
+            : cell.includes("发货")
+              ? "shipping"
+              : "approved";
         status.className = `status ${statusKey}`;
         status.textContent = cell;
         cellEl.appendChild(status);
@@ -296,10 +403,145 @@ function renderTable(el, headers, rows, statusIndex) {
   });
 }
 
+async function applyApprovalStatuses() {
+  const statuses = await fetchApprovalStatuses();
+  if (!statuses) return;
+  let changed = false;
+  state.orders = state.orders.map((o) => {
+    const s = statuses[o.id];
+    if (!s) return o;
+    const nextStatus = mapStatus(s.status);
+    if (nextStatus !== o.status) changed = true;
+    return { ...o, status: nextStatus };
+  });
+  state.approvals = state.approvals.map((o) => {
+    const s = statuses[o.id];
+    if (!s) return o;
+    return { ...o, status: mapStatus(s.status) };
+  });
+  if (changed) {
+    saveStoredOrders(state.orders);
+  }
+}
+
 function renderOrders() {
   if (!ordersTable) return;
-  const rows = state.orders.map((order) => [order.id, order.requester, order.cost, order.split, order.amount, order.status]);
+  const filter = orderStatusFilter?.value || "all";
+  const rows = state.orders
+    .filter((order) => filter === "all" || order.status === filter)
+    .map((order) => [order.id, order.requester, order.cost, order.split, order.amount, order.status]);
+  if (!rows.length) {
+    ordersTable.innerHTML = "";
+    const headerRow = document.createElement("div");
+    headerRow.className = "table-row header";
+    headerRow.innerHTML = ["订单号", "申请人", "成本中心", "拆分方式", "金额", "状态"]
+      .map((h) => `<div>${h}</div>`)
+      .join("");
+    const emptyRow = document.createElement("div");
+    emptyRow.className = "table-row";
+    emptyRow.style.gridTemplateColumns = "1fr";
+    emptyRow.innerHTML = "<div>当前筛选条件下暂无订单</div>";
+    ordersTable.appendChild(headerRow);
+    ordersTable.appendChild(emptyRow);
+    return;
+  }
   renderTable(ordersTable, ["订单号", "申请人", "成本中心", "拆分方式", "金额", "状态"], rows, 5);
+}
+
+async function refreshApprovalViews() {
+  if (!ordersTable && !approvalBoard) return;
+  await applyApprovalStatuses();
+  if (ordersTable) renderOrders();
+  if (approvalBoard) renderApprovals();
+}
+
+function startApprovalPolling() {
+  if (!ordersTable && !approvalBoard) return;
+  refreshApprovalViews();
+  if (approvalPollTimer) clearInterval(approvalPollTimer);
+  approvalPollTimer = window.setInterval(refreshApprovalViews, 5000);
+}
+
+
+async function fetchBpMapping() {
+  try {
+    const res = await fetch("http://localhost:3001/api/bp-mapping");
+    if (!res.ok) throw new Error("fetch failed");
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+async function renderBpMapping() {
+  if (!bpMapTable) return;
+  const mapping = (await fetchBpMapping()) || {
+    "市场中心": "finance.bp1@thermofisher.com",
+  };
+  bpMapTable.innerHTML = "";
+  const header = document.createElement("div");
+  header.className = "table-row header";
+  header.innerHTML = "<div>成本中心</div><div>财务BP邮箱</div><div></div><div></div><div></div><div></div>";
+  bpMapTable.appendChild(header);
+  Object.entries(mapping).forEach(([cc, mail]) => {
+    const row = document.createElement("div");
+    row.className = "table-row";
+    row.innerHTML = `
+      <div><input type="text" value="${cc}" /></div>
+      <div><input type="email" value="${mail}" /></div>
+      <div></div><div></div><div></div>
+      <div><button class="btn ghost small" data-remove-bp>移除</button></div>
+    `;
+    bpMapTable.appendChild(row);
+  });
+}
+
+
+async function fetchApprovalStatuses() {
+  try {
+    const res = await fetch("http://localhost:3001/api/approval-status");
+    if (!res.ok) throw new Error("fetch failed");
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+function mapStatus(status) {
+  if (status === "approved") return "已审批";
+  if (status === "rejected") return "已拒绝";
+  if (status === "return") return "退回";
+  return "待审批";
+}
+
+function renderOrderCart() {
+  if (!orderCartTable) return;
+  const cart = loadOrderCart();
+  const items = Object.keys(cart);
+  orderCartTable.innerHTML = "";
+  if (items.length === 0) {
+    orderCartTable.innerHTML = "<div class=\"note\">暂无领用清单，请从物料中心添加。</div>";
+    return;
+  }
+  const header = document.createElement("div");
+  header.className = "table-row header";
+  header.innerHTML = "<div>SKU</div><div>物料名称</div><div>数量</div><div>操作</div><div></div><div></div>";
+  orderCartTable.appendChild(header);
+
+  items.forEach((id) => {
+    const item = state.materials.find((m) => m.id === id);
+    const row = document.createElement("div");
+    row.className = "table-row";
+    row.innerHTML = `
+      <div>${id}</div>
+      <div>${item ? item.name : "-"}</div>
+      <div>${cart[id]}</div>
+      <div><button class="btn ghost small" data-cart-dec="${id}">-</button></div>
+      <div><button class="btn ghost small" data-cart-inc="${id}">+</button></div>
+      <div><button class="btn ghost small" data-cart-remove="${id}">移除</button></div>
+    `;
+    orderCartTable.appendChild(row);
+  });
 }
 
 function renderApprovals() {
@@ -389,6 +631,80 @@ function updateSplitAmounts() {
 }
 
 function bindEvents() {
+  const openAddBtns = document.querySelectorAll("[data-open-add-material]");
+  openAddBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!canEditMaterials()) {
+        alert("仅运营人员可新增物料");
+        return;
+      }
+      if (!addMaterialModal) return;
+      addMaterialModal.classList.add("active");
+      addMaterialModal.setAttribute("aria-hidden", "false");
+    });
+  });
+
+  document.querySelectorAll("[data-close-add-material]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!addMaterialModal) return;
+      addMaterialModal.classList.remove("active");
+      addMaterialModal.setAttribute("aria-hidden", "true");
+    });
+  });
+
+  document.querySelectorAll("[data-save-add-material]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!newMatName || !newMatSku) return;
+      const name = newMatName.value.trim();
+      const sku = newMatSku.value.trim();
+      if (!name || !sku) {
+        alert("请填写物料名称与 SKU");
+        return;
+      }
+      const file = newMatImage?.files?.[0];
+      const editingId = editMatId?.value?.trim();
+      const buildAndSave = (imgData) => {
+        const item = {
+          id: editingId || sku,
+          name,
+          type: newMatType?.value || "standard",
+          stock: Number(newMatStock?.value || 0),
+          available: Number(newMatAvailable?.value || 0),
+          category: newMatCategory?.value?.trim() || "礼品",
+          price: Number(newMatPrice?.value || 0),
+          redeemable: (newMatRedeemable?.value || "false") === "true",
+          points: Number(newMatPoints?.value || 0),
+          image: imgData || makeSvg(name, "#d88c6a"),
+        };
+        if (editingId) {
+          const idx = state.materials.findIndex((m) => m.id === editingId);
+          if (idx >= 0) {
+            if (!imgData) item.image = state.materials[idx].image;
+            state.materials[idx] = item;
+          }
+        } else {
+          state.materials.unshift(item);
+        }
+        saveStoredMaterials(state.materials);
+        renderMaterials();
+        renderPointsPage();
+        if (addMaterialModal) {
+          addMaterialModal.classList.remove("active");
+          addMaterialModal.setAttribute("aria-hidden", "true");
+        }
+        if (editMatId) editMatId.value = "";
+      };
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => buildAndSave(reader.result);
+        reader.readAsDataURL(file);
+      } else {
+        buildAndSave("");
+      }
+    });
+  });
+
   const menuToggle = document.querySelector("[data-toggle-sidebar]");
   if (menuToggle && sidebar && sidebarOverlay) {
     menuToggle.addEventListener("click", () => {
@@ -559,6 +875,224 @@ function bindEvents() {
     });
   }
 
+  if (materialsGrid) {
+    materialsGrid.addEventListener("click", (event) => {
+      const edit = event.target.closest("[data-edit-material]");
+      if (edit) {
+        if (!canEditMaterials()) {
+          alert("仅运营人员可编辑物料");
+          return;
+        }
+        const id = edit.dataset.editMaterial;
+        const item = state.materials.find((m) => m.id === id);
+        if (!item || !addMaterialModal) return;
+        if (editMatId) editMatId.value = id;
+        if (newMatName) newMatName.value = item.name;
+        if (newMatSku) newMatSku.value = item.id;
+        if (newMatType) newMatType.value = item.type;
+        if (newMatCategory) newMatCategory.value = item.category;
+        if (newMatStock) newMatStock.value = item.stock;
+        if (newMatAvailable) newMatAvailable.value = item.available;
+        if (newMatPrice) newMatPrice.value = item.price;
+        if (newMatRedeemable) newMatRedeemable.value = item.redeemable ? "true" : "false";
+        if (newMatPoints) newMatPoints.value = item.points;
+        if (newMatImage) newMatImage.value = "";
+        addMaterialModal.classList.add("active");
+        addMaterialModal.setAttribute("aria-hidden", "false");
+        return;
+      }
+      const btn = event.target.closest("[data-order-now]");
+      if (!btn) return;
+      const id = btn.dataset.orderNow;
+      const cart = loadOrderCart();
+      cart[id] = (cart[id] || 0) + 1;
+      saveOrderCart(cart);
+      alert("已加入领用清单（本地保存）");
+    });
+  }
+
+
+  if (addBpRow && bpMapTable) {
+    addBpRow.addEventListener("click", () => {
+      const row = document.createElement("div");
+      row.className = "table-row";
+      row.innerHTML = `
+        <div><input type="text" placeholder="成本中心" /></div>
+        <div><input type="email" placeholder="bp@company.com" /></div>
+        <div></div><div></div><div></div>
+        <div><button class="btn ghost small" data-remove-bp>移除</button></div>
+      `;
+      bpMapTable.appendChild(row);
+    });
+  }
+
+  if (bpMapTable) {
+    bpMapTable.addEventListener("click", (event) => {
+      const rm = event.target.closest("[data-remove-bp]");
+      if (rm) {
+        const row = rm.closest(".table-row");
+        if (row) row.remove();
+      }
+    });
+  }
+
+
+  if (exportBpMap && bpMapTable) {
+    exportBpMap.addEventListener("click", () => {
+      const rows = Array.from(bpMapTable.querySelectorAll(".table-row")).slice(1);
+      const mapping = {};
+      rows.forEach((row) => {
+        const inputs = row.querySelectorAll("input");
+        const cc = inputs[0]?.value?.trim();
+        const mail = inputs[1]?.value?.trim();
+        if (cc && mail) mapping[cc] = mail;
+      });
+      const blob = new Blob([JSON.stringify(mapping, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "bp-mapping.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  if (importBpMap && bpMapTable) {
+    importBpMap.addEventListener("change", async (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const mapping = JSON.parse(text);
+        bpMapTable.innerHTML = "";
+        const header = document.createElement("div");
+        header.className = "table-row header";
+        header.innerHTML = "<div>成本中心</div><div>财务BP邮箱</div><div></div><div></div><div></div><div></div>";
+        bpMapTable.appendChild(header);
+        Object.entries(mapping).forEach(([cc, mail]) => {
+          const row = document.createElement("div");
+          row.className = "table-row";
+          row.innerHTML = `
+            <div><input type="text" value="${cc}" /></div>
+            <div><input type="email" value="${mail}" /></div>
+            <div></div><div></div><div></div>
+            <div><button class="btn ghost small" data-remove-bp>移除</button></div>
+          `;
+          bpMapTable.appendChild(row);
+        });
+      } catch {
+        alert("导入失败，请检查 JSON 格式");
+      }
+    });
+  }
+
+  if (saveBpMap && bpMapTable) {
+    saveBpMap.addEventListener("click", async () => {
+      const rows = Array.from(bpMapTable.querySelectorAll(".table-row")).slice(1);
+      const mapping = {};
+      rows.forEach((row) => {
+        const inputs = row.querySelectorAll("input");
+        const cc = inputs[0]?.value?.trim();
+        const mail = inputs[1]?.value?.trim();
+        if (cc && mail) mapping[cc] = mail;
+      });
+      try {
+        const res = await fetch("http://localhost:3001/api/bp-mapping", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mapping }),
+        });
+        if (!res.ok) throw new Error("save failed");
+        alert("映射已保存（本地）");
+      } catch {
+        alert("保存失败，请确认本地服务已启动");
+      }
+    });
+  }
+
+  if (orderCartTable) {
+    orderCartTable.addEventListener("click", (event) => {
+      const dec = event.target.closest("[data-cart-dec]");
+      const inc = event.target.closest("[data-cart-inc]");
+      const remove = event.target.closest("[data-cart-remove]");
+      const id = (dec || inc || remove)?.dataset.cartDec || (dec || inc || remove)?.dataset.cartInc || (dec || inc || remove)?.dataset.cartRemove;
+      if (!id) return;
+      const cart = loadOrderCart();
+      if (dec) cart[id] = Math.max(0, (cart[id] || 0) - 1);
+      if (inc) cart[id] = (cart[id] || 0) + 1;
+      if (remove) cart[id] = 0;
+      if (!cart[id]) delete cart[id];
+      saveOrderCart(cart);
+      renderOrderCart();
+    });
+  }
+
+  if (clearOrderCart) {
+    clearOrderCart.addEventListener("click", () => {
+      saveOrderCart({});
+      renderOrderCart();
+    });
+  }
+
+  if (submitOrderCart) {
+    submitOrderCart.addEventListener("click", () => {
+      const cart = loadOrderCart();
+      if (!Object.keys(cart).length) {
+        alert("领用清单为空");
+        return;
+      }
+      const cc = cartCostCenter?.value?.trim();
+      if (!cc) {
+        alert("请填写主成本中心，否则无法匹配审批人");
+        return;
+      }
+      // 创建一个演示订单
+      const newOrderId = `L-${Date.now()}`;
+      const items = Object.keys(cart).map((id) => {
+        const item = state.materials.find((m) => m.id === id);
+        return { sku: id, name: item ? item.name : "-", qty: cart[id] };
+      });
+      const orderPayload = {
+        id: newOrderId,
+        applicant: "当前用户",
+        costCenter: cc,
+        amount: "¥0",
+        items,
+      };
+      state.orders.unshift({
+        id: newOrderId,
+        requester: "当前用户",
+        cost: cc,
+        split: "单地址",
+        amount: "¥0",
+        status: "待审批",
+      });
+      saveStoredOrders(state.orders);
+      saveOrderCart({});
+      renderOrders();
+      renderOrderCart();
+      fetch("http://localhost:3001/api/notify-approval", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order: orderPayload }),
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            const detail = await res.json().catch(() => ({}));
+            throw new Error(detail?.error || "notify failed");
+          }
+          alert("领用单已提交，并已通知审批人（演示）");
+        })
+        .catch((err) => {
+          alert(`领用单已提交，但邮件通知失败：${err.message}`);
+        });
+    });
+  }
+
+  if (orderStatusFilter) {
+    orderStatusFilter.addEventListener("change", renderOrders);
+  }
+
   if (redeemOnlyToggle) {
     redeemOnlyToggle.addEventListener("change", renderPointsPage);
   }
@@ -606,6 +1140,7 @@ function bindEvents() {
         return;
       }
       state.pointsBalance -= total;
+      saveStoredPoints(state.pointsBalance);
       redeemCart.clear();
       renderPointsPage();
       alert("兑换订单已生成（不触发审批）");
@@ -687,6 +1222,7 @@ function updateRoleView() {
 function init() {
   renderMaterials();
   renderOrders();
+  renderOrderCart();
   renderApprovals();
   renderProcurements();
   renderInventory();
@@ -696,6 +1232,7 @@ function init() {
   renderPointsPage();
   updateRoleView();
   bindEvents();
+  startApprovalPolling();
 }
 
 init();

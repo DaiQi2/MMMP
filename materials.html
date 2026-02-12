@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>MKT 物料管理平台 - 物料中心</title>
-    <link rel="stylesheet" href="styles.css?v=2026-02-12-1" />
+    <link rel="stylesheet" href="styles.css?v=2026-02-12-2" />
   </head>
   <body>
     <div class="app">
@@ -75,7 +75,7 @@
             </div>
             <div class="page-actions">
               <button class="btn ghost">批量导入</button>
-              <button class="btn primary">新增物料</button>
+              <button class="btn primary" data-open-add-material>新增物料</button>
             </div>
           </div>
           <div class="filters">
@@ -217,10 +217,60 @@
       </div>
     </div>
 
-    <script src="app.js?v=2026-02-12-1"></script>
+    v=2026-02-12-1"></script>
   
     <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
-        <nav class="bottom-nav" id="bottomNav">
+    <div class="modal" id="addMaterialModal" aria-hidden="true">
+      <div class="modal-content">
+        <h3>新增物料</h3>
+        <div class="form">
+          <input type="hidden" id="editMatId" />
+          <label>物料名称
+            <input type="text" id="newMatName" placeholder="例如：帆布袋" />
+          </label>
+          <label>SKU
+            <input type="text" id="newMatSku" placeholder="例如：SKU-9001" />
+          </label>
+          <label>类型
+            <select id="newMatType">
+              <option value="standard">标准礼品</option>
+              <option value="custom">定制/印刷</option>
+              <option value="expo">展会用品</option>
+            </select>
+          </label>
+          <label>类别
+            <input type="text" id="newMatCategory" placeholder="例如：礼品" />
+          </label>
+          <label>库存
+            <input type="number" id="newMatStock" min="0" value="0" />
+          </label>
+          <label>可下单数量
+            <input type="number" id="newMatAvailable" min="0" value="0" />
+          </label>
+          <label>价格
+            <input type="number" id="newMatPrice" min="0" value="0" />
+          </label>
+          <label>可积分兑换
+            <select id="newMatRedeemable">
+              <option value="true">是</option>
+              <option value="false">否</option>
+            </select>
+          </label>
+          <label>兑换积分值
+            <input type="number" id="newMatPoints" min="0" value="0" />
+          </label>
+          <label>上传图片
+            <input type="file" id="newMatImage" accept="image/*" />
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button class="btn ghost" data-close-add-material>取消</button>
+          <button class="btn primary" data-save-add-material>保存</button>
+        </div>
+      </div>
+    </div>
+<script src="app.js?v=2026-02-12-2"></script>
+<nav class="bottom-nav" id="bottomNav">
       <a href="index.html" data-route="dashboard">仪表盘</a>
       <a href="materials.html" data-route="materials">物料中心</a>
       <a href="points.html" data-route="points">积分兑换</a>
@@ -230,3 +280,4 @@
 
 </body>
 </html>
+    

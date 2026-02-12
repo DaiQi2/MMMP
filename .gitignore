@@ -9,3 +9,6 @@ __pycache__/
 
 # OS
 .Trash/
+
+server/.env
+node_modules/
