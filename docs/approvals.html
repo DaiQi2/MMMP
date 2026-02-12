@@ -41,6 +41,7 @@
           <nav class="nav">
             <a href="index.html" class="nav-link" data-route="dashboard">仪表盘</a>
             <a href="materials.html" class="nav-link" data-route="materials">物料中心</a>
+            <a href="points.html" class="nav-link" data-route="points">积分兑换</a>
             <a href="orders.html" class="nav-link" data-route="orders">领用订单</a>
             <a href="approvals.html" class="nav-link" data-route="approvals">审批中心</a>
             <a href="procurements.html" class="nav-link" data-route="procurements">采购订单</a>
@@ -76,6 +77,37 @@
               <button class="btn ghost">审批规则</button>
               <button class="btn primary">批量审批</button>
             </div>
+          </div>
+          <div class="card flow-update">
+            <div class="card-title">新版审批流程</div>
+            <div class="flow-note">单一成本中心仅经理审批；跨成本中心需财务BP介入（按主成本中心映射）。</div>
+            <div class="flow-line flow-update-line">
+              <div class="flow-step">
+                <div class="flow-dot"></div>
+                <div class="flow-label">提交领用申请</div>
+              </div>
+              <div class="flow-step">
+                <div class="flow-dot"></div>
+                <div class="flow-label">经理 1/2 级审批</div>
+              </div>
+              <div class="flow-step">
+                <div class="flow-dot"></div>
+                <div class="flow-label">是否跨成本中心</div>
+              </div>
+              <div class="flow-step">
+                <div class="flow-dot"></div>
+                <div class="flow-label">财务BP审批（仅主成本中心）</div>
+              </div>
+              <div class="flow-step">
+                <div class="flow-dot"></div>
+                <div class="flow-label">进入发货流程</div>
+              </div>
+            </div>
+            <ul class="list flow-rules">
+              <li>单一成本中心：不进入财务BP节点，仅经理审批结束</li>
+              <li>跨成本中心：需分摊表且比例合计=100%</li>
+              <li>主成本中心必须映射财务BP，否则阻断提交</li>
+            </ul>
           </div>
           <div class="approval-board" id="approvalBoard"></div>
         </section>
@@ -225,12 +257,13 @@
     <script src="app.js"></script>
   
     <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
-    <nav class="bottom-nav" id="bottomNav">
+        <nav class="bottom-nav" id="bottomNav">
       <a href="index.html" data-route="dashboard">仪表盘</a>
       <a href="materials.html" data-route="materials">物料中心</a>
+      <a href="points.html" data-route="points">积分兑换</a>
       <a href="orders.html" data-route="orders">领用订单</a>
       <a href="approvals.html" data-route="approvals">审批中心</a>
-      <a href="inventory.html" data-route="inventory">库存</a>
     </nav>
+
 </body>
 </html>

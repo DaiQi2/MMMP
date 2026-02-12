@@ -19,19 +19,20 @@ const makeSvg = (label, color) => {
 
 const state = {
   role: "operator",
+  pointsBalance: 3200,
   materials: [
-    { id: "SKU-1001", name: "字母笔", type: "standard", stock: 138, available: 17, category: "礼品", price: 10, image: makeSvg("字母笔", "#e44b2d") },
-    { id: "SKU-1002", name: "鸭舌帽", type: "standard", stock: 56, available: 24, category: "礼品", price: 35, image: makeSvg("鸭舌帽", "#d88c6a") },
-    { id: "SKU-1003", name: "帆布袋", type: "standard", stock: 74, available: 31, category: "礼品", price: 25, image: makeSvg("帆布袋", "#c95c3b") },
-    { id: "SKU-1004", name: "签字笔", type: "standard", stock: 92, available: 38, category: "礼品", price: 15, image: makeSvg("签字笔", "#1e1b1a") },
-    { id: "SKU-2001", name: "折叠伞", type: "custom", stock: 60, available: 45, category: "定制", price: 50, image: makeSvg("折叠伞", "#2f4f3c") },
-    { id: "SKU-2002", name: "鼠标", type: "standard", stock: 78, available: 52, category: "礼品", price: 80, image: makeSvg("鼠标", "#45545f") },
-    { id: "SKU-2003", name: "运动巾", type: "custom", stock: 96, available: 59, category: "定制", price: 40, image: makeSvg("运动巾", "#2e7f8f") },
-    { id: "SKU-2004", name: "鼠标垫", type: "standard", stock: 114, available: 66, category: "礼品", price: 15, image: makeSvg("鼠标垫", "#2a1d16") },
-    { id: "SKU-3001", name: "躺椅", type: "expo", stock: 132, available: 73, category: "展会", price: 200, image: makeSvg("躺椅", "#d6a04e") },
-    { id: "SKU-3002", name: "无纺布袋", type: "custom", stock: 100, available: 80, category: "定制", price: 8, image: makeSvg("无纺布袋", "#b7b7b7") },
-    { id: "SKU-3003", name: "转换器", type: "standard", stock: 118, available: 87, category: "礼品", price: 60, image: makeSvg("转换器", "#6b6f77") },
-    { id: "SKU-3004", name: "手机支架", type: "standard", stock: 56, available: 14, category: "礼品", price: 20, image: makeSvg("手机支架", "#1f1d1a") },
+    { id: "SKU-1001", name: "字母笔", type: "standard", stock: 138, available: 17, category: "礼品", price: 10, redeemable: true, points: 120, image: makeSvg("字母笔", "#e44b2d") },
+    { id: "SKU-1002", name: "鸭舌帽", type: "standard", stock: 56, available: 24, category: "礼品", price: 35, redeemable: true, points: 380, image: makeSvg("鸭舌帽", "#d88c6a") },
+    { id: "SKU-1003", name: "帆布袋", type: "standard", stock: 74, available: 31, category: "礼品", price: 25, redeemable: true, points: 260, image: makeSvg("帆布袋", "#c95c3b") },
+    { id: "SKU-1004", name: "签字笔", type: "standard", stock: 92, available: 38, category: "礼品", price: 15, redeemable: false, points: 0, image: makeSvg("签字笔", "#1e1b1a") },
+    { id: "SKU-2001", name: "折叠伞", type: "custom", stock: 60, available: 45, category: "定制", price: 50, redeemable: true, points: 520, image: makeSvg("折叠伞", "#2f4f3c") },
+    { id: "SKU-2002", name: "鼠标", type: "standard", stock: 78, available: 52, category: "礼品", price: 80, redeemable: false, points: 0, image: makeSvg("鼠标", "#45545f") },
+    { id: "SKU-2003", name: "运动巾", type: "custom", stock: 96, available: 59, category: "定制", price: 40, redeemable: true, points: 420, image: makeSvg("运动巾", "#2e7f8f") },
+    { id: "SKU-2004", name: "鼠标垫", type: "standard", stock: 114, available: 66, category: "礼品", price: 15, redeemable: true, points: 180, image: makeSvg("鼠标垫", "#2a1d1a") },
+    { id: "SKU-3001", name: "躺椅", type: "expo", stock: 132, available: 73, category: "展会", price: 200, redeemable: false, points: 0, image: makeSvg("躺椅", "#d6a04e") },
+    { id: "SKU-3002", name: "无纺布袋", type: "custom", stock: 100, available: 80, category: "定制", price: 8, redeemable: true, points: 90, image: makeSvg("无纺布袋", "#b7b7b7") },
+    { id: "SKU-3003", name: "转换器", type: "standard", stock: 118, available: 87, category: "礼品", price: 60, redeemable: true, points: 640, image: makeSvg("转换器", "#6b6f77") },
+    { id: "SKU-3004", name: "手机支架", type: "standard", stock: 56, available: 14, category: "礼品", price: 20, redeemable: true, points: 220, image: makeSvg("手机支架", "#1f1d1a") },
   ],
   orders: [
     { id: "L-20250201", requester: "王晓", cost: "市场中心", status: "待审批", split: "多地址", amount: "¥12,800" },
@@ -65,10 +66,11 @@ const state = {
   ],
 };
 
-const routes = ["dashboard", "materials", "orders", "approvals", "procurements", "inventory", "returns", "suppliers", "settings"];
+const routes = ["dashboard", "materials", "points", "orders", "approvals", "procurements", "inventory", "returns", "suppliers", "settings"];
 const routeToPage = {
   dashboard: "index.html",
   materials: "materials.html",
+  points: "points.html",
   orders: "orders.html",
   approvals: "approvals.html",
   procurements: "procurements.html",
@@ -87,6 +89,15 @@ const returnsTable = document.getElementById("returnsTable");
 const shippingTable = document.getElementById("shippingTable");
 const roleList = document.getElementById("roleList");
 const permissionTable = document.getElementById("permissionTable");
+const redeemGrid = document.getElementById("redeemGrid");
+const redeemList = document.getElementById("redeemList");
+const redeemTotal = document.getElementById("redeemTotal");
+const redeemBalance = document.getElementById("redeemBalance");
+const redeemHint = document.getElementById("redeemHint");
+const pointsBalance = document.getElementById("pointsBalance");
+const redeemableCount = document.getElementById("redeemableCount");
+const redeemOnlyToggle = document.getElementById("redeemOnlyToggle");
+const redeemSubmit = document.getElementById("redeemSubmit");
 
 const modal = document.getElementById("decisionModal");
 const modalOrder = document.getElementById("modalOrder");
@@ -97,9 +108,75 @@ const splitList = document.getElementById("splitList");
 const itemList = document.getElementById("itemList");
 const addressList = document.getElementById("addressList");
 const multiAddressToggle = document.getElementById("multiAddressToggle");
+const primaryCostCenter = document.getElementById("primaryCostCenter");
+const totalAmount = document.getElementById("totalAmount");
+const splitToggle = document.getElementById("splitToggle");
+const splitHint = document.getElementById("splitHint");
 const sidebar = document.querySelector(".sidebar");
 const sidebarOverlay = document.getElementById("sidebarOverlay");
 let modalTarget = null;
+
+const redeemCart = new Map();
+
+const bpMapping = {
+  "市场中心": "BP-张珊",
+  "品牌部": "BP-张珊",
+  "华东销售": "BP-李敏",
+  "展会组": "BP-王强",
+};
+
+function getBpByCostCenter(cost) {
+  return bpMapping[cost] || null;
+}
+
+function validateSplitAndBp() {
+  if (!primaryCostCenter || !totalAmount || !splitToggle) return true;
+  const primary = primaryCostCenter.value.trim();
+  const total = Number(totalAmount.value || 0);
+  const isSplit = splitToggle.checked;
+  const rows = splitList ? Array.from(splitList.querySelectorAll(".split-row")).slice(1) : [];
+
+  if (!primary) {
+    alert("请填写主成本中心");
+    return false;
+  }
+  if (total <= 0) {
+    alert("总金额必须为正数");
+    return false;
+  }
+
+  if (!isSplit) {
+    // 单一成本中心校验：更换后的成本中心 BP 必须与最终使用者 BP 一致（用示例模拟）
+    const endUser = document.querySelector("input[name='finalUser']")?.value?.trim() || "";
+    const userBp = endUser ? "BP-张珊" : getBpByCostCenter(primary);
+    const ccBp = getBpByCostCenter(primary);
+    if (!ccBp || ccBp !== userBp) {
+      alert("主成本中心与最终使用者财务BP不一致，请改为分摊或另提新单");
+      return false;
+    }
+    return true;
+  }
+
+  // 分摊校验
+  if (!rows.length) {
+    alert("已勾选分摊，请填写分摊表");
+    return false;
+  }
+  let ratioSum = 0;
+  rows.forEach((row) => {
+    const ratio = Number(row.querySelector("input:nth-child(2)")?.value || 0);
+    ratioSum += ratio;
+  });
+  if (Math.round(ratioSum) !== 100) {
+    alert("分摊比例需合计 100% ");
+    return false;
+  }
+  if (!getBpByCostCenter(primary)) {
+    alert("主成本中心无法映射财务BP，请更换或另提申请");
+    return false;
+  }
+  return true;
+}
 
 function renderMaterials(filter = "all") {
   if (!materialsGrid) return;
@@ -127,6 +204,68 @@ function renderMaterials(filter = "all") {
     `;
     materialsGrid.appendChild(card);
   });
+}
+
+function renderPointsPage() {
+  if (!redeemGrid) return;
+  const showRedeemOnly = redeemOnlyToggle ? redeemOnlyToggle.checked : true;
+  const list = state.materials.filter((item) => (showRedeemOnly ? item.redeemable : true));
+
+  redeemGrid.innerHTML = "";
+  list.forEach((item) => {
+    const card = document.createElement("div");
+    card.className = "material-card";
+    const disabled = !item.redeemable ? "disabled" : "";
+    card.innerHTML = `
+      <div class="material-image">
+        <img src="${item.image}" alt="${item.name}" loading="lazy"/>
+      </div>
+      <div class="material-name">${item.name}</div>
+      <div class="material-stock">库存：${item.stock} | 兑换：${item.redeemable ? item.points + " 积分" : "不可兑换"}</div>
+      <div class="material-footer">
+        <div class="material-price">SKU ${item.id}</div>
+        <button class="btn primary small" data-redeem-add="${item.id}" ${disabled}>加入兑换</button>
+      </div>
+    `;
+    redeemGrid.appendChild(card);
+  });
+
+  if (pointsBalance) pointsBalance.textContent = state.pointsBalance;
+  if (redeemableCount) redeemableCount.textContent = state.materials.filter((m) => m.redeemable).length;
+  renderRedeemCart();
+}
+
+function renderRedeemCart() {
+  if (!redeemList) return;
+  redeemList.innerHTML = "";
+  let total = 0;
+  redeemCart.forEach((qty, id) => {
+    const item = state.materials.find((m) => m.id === id);
+    if (!item) return;
+    const row = document.createElement("div");
+    row.className = "redeem-row";
+    const rowTotal = qty * item.points;
+    total += rowTotal;
+    row.innerHTML = `
+      <div>
+        <div class="redeem-title">${item.name}</div>
+        <div class="redeem-sub">${item.points} 积分 / 件</div>
+      </div>
+      <div class="redeem-qty">
+        <button class="btn ghost icon" data-redeem-dec="${item.id}">-</button>
+        <span>${qty}</span>
+        <button class="btn ghost icon" data-redeem-inc="${item.id}">+</button>
+      </div>
+      <div class="redeem-total">${rowTotal} 积分</div>
+    `;
+    redeemList.appendChild(row);
+  });
+
+  if (redeemTotal) redeemTotal.textContent = total;
+  if (redeemBalance) redeemBalance.textContent = state.pointsBalance;
+  if (redeemHint) {
+    redeemHint.textContent = total === 0 ? "请添加兑换物品" : "";
+  }
 }
 
 function renderTable(el, headers, rows, statusIndex) {
@@ -235,6 +374,20 @@ function renderRoles() {
   });
 }
 
+
+function updateSplitAmounts() {
+  if (!splitList || !totalAmount) return;
+  const total = Number(totalAmount.value || 0);
+  const rows = Array.from(splitList.querySelectorAll(".split-row")).slice(1);
+  rows.forEach((row) => {
+    const ratio = Number(row.querySelector("input:nth-child(2)")?.value || 0);
+    const amountCell = row.querySelector("input:nth-child(3)");
+    if (amountCell) {
+      amountCell.value = total > 0 ? (total * ratio / 100).toFixed(2) : "";
+    }
+  });
+}
+
 function bindEvents() {
   const menuToggle = document.querySelector("[data-toggle-sidebar]");
   if (menuToggle && sidebar && sidebarOverlay) {
@@ -310,14 +463,39 @@ function bindEvents() {
         row.className = "split-row";
         row.innerHTML = `
           <input type="text" placeholder="成本中心" />
-          <input type="text" placeholder="比例(%)" />
-          <input type="text" placeholder="备注" />
+          <input type="number" placeholder="比例(%)" />
+          <input type="text" placeholder="自动计算" disabled />
         `;
         splitList.appendChild(row);
       });
     }
   }
 
+
+  if (splitToggle && splitList) {
+    const updateSplitUI = () => {
+      const enabled = splitToggle.checked;
+      splitList.style.display = enabled ? "grid" : "none";
+      if (splitHint) {
+        splitHint.textContent = enabled ? "已启用分摊，比例合计需为 100%" : "未勾选分摊时不可填写分摊表";
+      }
+    };
+    splitToggle.addEventListener("change", () => {
+      updateSplitUI();
+    });
+    updateSplitUI();
+  }
+
+  if (totalAmount) {
+    totalAmount.addEventListener("input", updateSplitAmounts);
+  }
+  if (splitList) {
+    splitList.addEventListener("input", (event) => {
+      if (event.target.matches("input:nth-child(2)")) {
+        updateSplitAmounts();
+      }
+    });
+  }
   if (itemList) {
     const addItem = document.querySelector("[data-add-item]");
     if (addItem) {
@@ -375,8 +553,62 @@ function bindEvents() {
   if (orderForm) {
     orderForm.addEventListener("submit", (event) => {
       event.preventDefault();
+      if (!validateSplitAndBp()) return;
       closeOrderDrawer();
       alert("已提交领用订单（演示数据）。");
+    });
+  }
+
+  if (redeemOnlyToggle) {
+    redeemOnlyToggle.addEventListener("change", renderPointsPage);
+  }
+
+  if (redeemGrid) {
+    redeemGrid.addEventListener("click", (event) => {
+      const btn = event.target.closest("[data-redeem-add]");
+      if (!btn) return;
+      const id = btn.dataset.redeemAdd;
+      const item = state.materials.find((m) => m.id === id);
+      if (!item || !item.redeemable) return;
+      const next = (redeemCart.get(id) || 0) + 1;
+      redeemCart.set(id, next);
+      renderRedeemCart();
+    });
+  }
+
+  if (redeemList) {
+    redeemList.addEventListener("click", (event) => {
+      const inc = event.target.closest("[data-redeem-inc]");
+      const dec = event.target.closest("[data-redeem-dec]");
+      if (!inc && !dec) return;
+      const id = (inc || dec).dataset.redeemInc || (inc || dec).dataset.redeemDec;
+      const current = redeemCart.get(id) || 0;
+      const next = inc ? current + 1 : current - 1;
+      if (next <= 0) redeemCart.delete(id);
+      else redeemCart.set(id, next);
+      renderRedeemCart();
+    });
+  }
+
+  if (redeemSubmit) {
+    redeemSubmit.addEventListener("click", () => {
+      let total = 0;
+      redeemCart.forEach((qty, id) => {
+        const item = state.materials.find((m) => m.id === id);
+        if (item) total += qty * item.points;
+      });
+      if (total === 0) {
+        alert("请先添加可兑换物品");
+        return;
+      }
+      if (total > state.pointsBalance) {
+        alert("积分不足，无法提交兑换");
+        return;
+      }
+      state.pointsBalance -= total;
+      redeemCart.clear();
+      renderPointsPage();
+      alert("兑换订单已生成（不触发审批）");
     });
   }
 }
@@ -412,15 +644,15 @@ function closeOrderDrawer() {
 function updateRoleView() {
   const role = state.role;
   const navMap = {
-    requester: ["dashboard", "materials", "orders", "returns"],
+    requester: ["dashboard", "materials", "points", "orders", "returns"],
     approver: ["dashboard", "approvals", "orders"],
     operator: routes,
     supplier: ["dashboard", "suppliers", "procurements", "orders"],
-    agent: ["dashboard", "orders", "returns"],
+    agent: ["dashboard", "points", "orders", "returns"],
   };
 
   const currentPage = location.pathname.split("/").pop() || "index.html";
-  const allowedPages = navMap[role].map((route) => routeToPage[route]);
+  const allowedPages = navMap[role].map((route) => routeToPage[route] || "index.html");
 
   document.querySelectorAll(".nav-link").forEach((link) => {
     const isAllowed = navMap[role].includes(link.dataset.route);
@@ -461,6 +693,7 @@ function init() {
   renderReturns();
   renderShipping();
   renderRoles();
+  renderPointsPage();
   updateRoleView();
   bindEvents();
 }

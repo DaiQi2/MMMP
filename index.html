@@ -41,6 +41,7 @@
           <nav class="nav">
             <a href="index.html" class="nav-link" data-route="dashboard">仪表盘</a>
             <a href="materials.html" class="nav-link" data-route="materials">物料中心</a>
+            <a href="points.html" class="nav-link" data-route="points">积分兑换</a>
             <a href="orders.html" class="nav-link" data-route="orders">领用订单</a>
             <a href="approvals.html" class="nav-link" data-route="approvals">审批中心</a>
             <a href="procurements.html" class="nav-link" data-route="procurements">采购订单</a>
@@ -76,43 +77,32 @@
                 <button class="btn ghost">查看流程图</button>
               </div>
             </div>
-            <div class="hero-card">
-              <div class="hero-card-title">今日关键指标</div>
-              <div class="hero-metrics">
-                <div>
-                  <div class="metric-value">128</div>
-                  <div class="metric-label">待审批订单</div>
-                </div>
-                <div>
-                  <div class="metric-value">36</div>
-                  <div class="metric-label">待发货领用</div>
-                </div>
-                <div>
-                  <div class="metric-value">12</div>
-                  <div class="metric-label">库存异常</div>
-                </div>
-              </div>
-              <div class="hero-progress">
-                <div class="progress-row">
-                  <span>采购在途</span>
-                  <span>72%</span>
-                </div>
-                <div class="progress">
-                  <div class="progress-bar" style="width:72%"></div>
-                </div>
-                <div class="progress-row">
-                  <span>退回入库核验</span>
-                  <span>48%</span>
-                </div>
-                <div class="progress">
-                  <div class="progress-bar alt" style="width:48%"></div>
-                </div>
-              </div>
+            <div class="hero-metrics-grid">
+              <a class="metric-tile" href="approvals.html">
+                <div class="hero-card-title">审批</div>
+                <div class="metric-value">128</div>
+                <div class="metric-label">待审批订单</div>
+              </a>
+              <a class="metric-tile" href="suppliers.html">
+                <div class="hero-card-title">履约</div>
+                <div class="metric-value">36</div>
+                <div class="metric-label">待发货领用</div>
+              </a>
+              <a class="metric-tile" href="inventory.html">
+                <div class="hero-card-title">库存</div>
+                <div class="metric-value">12</div>
+                <div class="metric-label">库存异常</div>
+              </a>
+              <a class="metric-tile" href="procurements.html">
+                <div class="hero-card-title">采购</div>
+                <div class="metric-value">72%</div>
+                <div class="metric-label">在途完成度</div>
+              </a>
             </div>
           </div>
 
 
-          <div class="grid three">
+          <div class="grid three equal-row">
             <div class="card create-order-card">
               <div class="card-title">创建领用订单</div>
               <p class="muted">快速填写申请信息、成本中心分摊与物料清单。支持多地址拆分与批量上传。</p>
@@ -208,20 +198,38 @@
           </div>
 
           <div class="form-section">
-            <div class="section-heading">成本中心分摊</div>
+            <div class="section-heading">成本中心与分摊</div>
+            <div class="form-grid two">
+              <label>主成本中心
+                <input type="text" id="primaryCostCenter" placeholder="请选择主成本中心" />
+              </label>
+              <label>总金额（分摊基数）
+                <input type="number" id="totalAmount" min="0" placeholder="输入总金额" />
+              </label>
+            </div>
+            <div class="toggle-row">
+              <label class="switch">
+                <input type="checkbox" id="splitToggle" />
+                <span class="slider"></span>
+              </label>
+              <span>跨成本中心/需要分摊</span>
+            </div>
             <div class="split-list" id="splitList">
               <div class="split-row header">
                 <span>成本中心</span>
                 <span>分摊比例</span>
-                <span>备注</span>
+                <span>分摊金额</span>
               </div>
               <div class="split-row">
-                <input type="text" placeholder="市场中心" />
-                <input type="text" placeholder="70%" />
-                <input type="text" placeholder="品牌活动" />
+                <input type="text" placeholder="成本中心" />
+                <input type="number" placeholder="比例(%)" />
+                <input type="text" placeholder="自动计算" disabled />
               </div>
             </div>
-            <button class="btn ghost" type="button" data-add-split>新增分摊</button>
+            <div class="inline-actions">
+              <button class="btn ghost" type="button" data-add-split>新增分摊</button>
+              <div class="form-hint" id="splitHint">未勾选分摊时不可填写分摊表</div>
+            </div>
           </div>
 
           <div class="form-section">
@@ -308,12 +316,13 @@
     <script src="app.js"></script>
   
     <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
-    <nav class="bottom-nav" id="bottomNav">
+        <nav class="bottom-nav" id="bottomNav">
       <a href="index.html" data-route="dashboard">仪表盘</a>
       <a href="materials.html" data-route="materials">物料中心</a>
+      <a href="points.html" data-route="points">积分兑换</a>
       <a href="orders.html" data-route="orders">领用订单</a>
       <a href="approvals.html" data-route="approvals">审批中心</a>
-      <a href="inventory.html" data-route="inventory">库存</a>
     </nav>
+
 </body>
 </html>

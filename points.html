@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MKT 物料管理平台 - 库存管理</title>
+    <title>MKT 物料管理平台 - 积分兑换</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -32,7 +32,7 @@
             </select>
           </div>
           <button class="btn ghost">消息</button>
-                  </div>
+        </div>
       </header>
 
       <aside class="sidebar">
@@ -41,7 +41,6 @@
           <nav class="nav">
             <a href="index.html" class="nav-link" data-route="dashboard">仪表盘</a>
             <a href="materials.html" class="nav-link" data-route="materials">物料中心</a>
-            <a href="points.html" class="nav-link" data-route="points">积分兑换</a>
             <a href="orders.html" class="nav-link" data-route="orders">领用订单</a>
             <a href="approvals.html" class="nav-link" data-route="approvals">审批中心</a>
             <a href="procurements.html" class="nav-link" data-route="procurements">采购订单</a>
@@ -65,54 +64,65 @@
         </div>
       </aside>
 
-      <main class="content">
-
+            <main class="content">
         <section class="page active">
           <div class="page-header">
             <div>
-              <h2>库存管理</h2>
-              <p>库存对账、异常登记与 WMS 数据回传。</p>
+              <h2>积分兑换</h2>
+              <p>积分发放在后台完成，兑换不走审批。仅可兑换 SKU 可见。</p>
             </div>
             <div class="page-actions">
-              <button class="btn ghost">对账记录</button>
-              <button class="btn primary">发起校准</button>
+              <button class="btn ghost">下载积分模板</button>
+              <button class="btn primary">上传积分发放表</button>
             </div>
           </div>
-          <div class="grid two">
+
+          <div class="points-summary">
+            <div class="points-card">
+              <div class="points-label">当前积分余额</div>
+              <div class="points-value" id="pointsBalance">0</div>
+              <div class="points-note">发放视为已授权，兑换无需审批</div>
+            </div>
+            <div class="points-card">
+              <div class="points-label">可兑换 SKU</div>
+              <div class="points-value" id="redeemableCount">0</div>
+              <div class="points-note">开启筛选仅展示可兑换</div>
+            </div>
+            <div class="points-card">
+              <div class="points-label">兑换订单</div>
+              <div class="points-value">18</div>
+              <div class="points-note">履约复用出库/发货链路</div>
+            </div>
+          </div>
+
+          <div class="points-filter">
+            <label class="switch">
+              <input type="checkbox" id="redeemOnlyToggle" checked />
+              <span class="slider"></span>
+            </label>
+            <span>仅显示可兑换 SKU</span>
+          </div>
+
+          <div class="materials-grid" id="redeemGrid"></div>
+
+          <div class="redeem-panel">
             <div class="card">
-              <div class="card-title">库存异常列表</div>
-              <div class="table" id="inventoryTable"></div>
+              <div class="card-title">兑换清单</div>
+              <div class="redeem-list" id="redeemList"></div>
             </div>
             <div class="card">
-              <div class="card-title">校准日程</div>
-              <div class="calendar">
-                <div class="calendar-item">
-                  <div>
-                    <div class="calendar-date">每周一</div>
-                    <div class="calendar-desc">仓库实物盘点</div>
-                  </div>
-                  <span class="pill">进行中</span>
-                </div>
-                <div class="calendar-item">
-                  <div>
-                    <div class="calendar-date">每日 02:00</div>
-                    <div class="calendar-desc">WMS 库存回传</div>
-                  </div>
-                  <span class="pill">自动</span>
-                </div>
-                <div class="calendar-item">
-                  <div>
-                    <div class="calendar-date">本周五</div>
-                    <div class="calendar-desc">异常 SKU 复核</div>
-                  </div>
-                  <span class="pill alert">待确认</span>
-                </div>
+              <div class="card-title">兑换提交</div>
+              <div class="redeem-summary">
+                <div>总积分：<span id="redeemTotal">0</span></div>
+                <div>余额：<span id="redeemBalance">0</span></div>
               </div>
+              <div class="redeem-hint" id="redeemHint">请添加兑换物品</div>
+              <button class="btn primary" id="redeemSubmit">提交兑换</button>
             </div>
           </div>
         </section>
-        
       </main>
+</main>
     </div>
 
 
